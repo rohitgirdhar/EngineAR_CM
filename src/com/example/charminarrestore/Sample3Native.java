@@ -1,4 +1,4 @@
-package com.example.enginear;
+package com.example.charminarrestore;
 
 
 import java.io.InputStream;
@@ -28,9 +28,8 @@ public class Sample3Native extends Activity implements SearchOverInterface{
 	private int obj;
 
 	private AnimeView1 drawInst;
-	Handler AVHandler;
 
-    public Sample3Native() {
+	public Sample3Native() {
         Log.i(TAG, "Instantiated new " + this.getClass());        
     }
 
@@ -61,20 +60,13 @@ public class Sample3Native extends Activity implements SearchOverInterface{
         if( cameraView.sourcePresentFlag == 0  ){
         	Toast.makeText(this, "No source files present, go to 'Select Object(s)' menu", Toast.LENGTH_LONG).show();
         	finish();        	
-        }
-            
-        
+        }        
         
         drawInst = new AnimeView1(this);
-        AVHandler = new Handler();
 
         addContentView(cameraView, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-
         addContentView(drawInst, new LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.MATCH_PARENT));
-
         drawInst.bringToFront();
-
-
     }
     
 	@Override
@@ -101,19 +93,9 @@ public class Sample3Native extends Activity implements SearchOverInterface{
 		// TODO Auto-generated method stub
 		Log.i("MainActivity","OnDataLoaded");
 		if( success == true){
-//			Intent intent = new Intent(Sample3Native.this, AbstractQueryDetails.class);
-//			view3d.setCameraPose(cameraView.Pose);
-//			startActivity(intent);
-
-		    AVHandler.post(new Runnable() {
-                
-                @Override
-                public void run() {
-                    // TODO Auto-generated method stub
-                    drawInst.invalidate();
-                }
-            });
-
+			if( drawInst.width == 0 ){
+				drawInst.setCameraDims(cameraView.getFrameWidth(), cameraView.getFrameHeight());
+			}
 		}
 	}
 	
@@ -133,24 +115,29 @@ public class Sample3Native extends Activity implements SearchOverInterface{
 
 	    Context pContext;
 	    Bitmap temp;
+	    int width,height;
 	    
 	    public AnimeView1(Context context){
 	        super(context);
 	        pContext = context;
+	        width=0;
 
 	    }
-	    
-	    
-	    public void setInvalidate(){
-	        this.invalidate();
+	    public void setCameraDims(int w, int h){
+	    	width = w; height = h;
 	    }
 	    
 	    @Override
 	    protected void onDraw(Canvas canvas){
 	        canvas.drawColor(Color.TRANSPARENT);
-
-	        Log.i("AnimeView","Drawing again");
 	        
+	        float dx = (canvas.getWidth() - width)/2;
+	        float dy = (canvas.getHeight() - height)/2;
+	        canvas.translate(dx, dy);
+	        Log.i("Canvas translating: ", Float.toString(dx) + " " + Float.toString(dy));
+//	        canvas.scale(sx, sy);
+	        Log.i("AnimeView","Drawing again");
+	        super.onDraw(canvas);
 	        try{
 //	          temp = BitmapFactory.decodeFile("/sdcard/charminarAR/overlay3_1.png");
 	            canvas.drawBitmap(Sample3View.bmp_overlay, 0, 0, null);

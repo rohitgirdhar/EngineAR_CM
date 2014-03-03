@@ -1,7 +1,7 @@
-package com.example.enginear;
+package com.example.charminarrestore;
 
 
-import com.example.enginear.R;
+import com.example.charminarrestore.R;
 
 import android.os.Bundle;
 import android.app.Activity;

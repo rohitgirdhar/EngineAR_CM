@@ -92,39 +92,41 @@ void  HomographicTransformation( vector<Point2f>& obj, vector<Point2f>& scene ){
 	vector<uchar> inliers;
 		rem_H = findHomography( obj, scene, CV_RANSAC, 5, inliers );
 
-		warpPerspective(img_overlay, cur_overlay, rem_H, img_scene.size());
-		cur_overlay.copyTo(img_overlay);
-		LOGI("img_overlay alpha channels %d", img_overlay.channels());
+
 //		imwrite("/sdcard/charminarAR/curOverlay.jpg", cur_overlay);
 
 //	H = Mat::eye(3, 3, 	CV_64F);
 	LOGI("Computed Homography");
 
-	char temp[100];
-	sprintf(temp, "size: %d %d", cur_overlay.rows, cur_overlay.cols);
-	LOGI(temp);
 
 	LOGI("tx the overlay");
-	//
-	//
-	// 	  int count = 0;
-	// 	  for( int i = 0 ; i < obj.size() ; i++ ){
-	// 		  if( !inliers[i] ){
-	// 			  obj.erase( obj.begin() + i );
-	// 			  scene.erase( scene.begin() + i );
-	// 		  }else{
-	// 			  count++;
-	// 		  }
-	// 	  }
-	// 	  if( count > 20 ){
-	// 		  perspectiveTransform( prev_scene_points, scene_points, H );
-	// 		  flag = 1;
-	// 		  LOGI("Perspective Transformation done");
-	//
-	// 	  }else {
-	// 		  flag = 0;
-	// 		  LOGI("Not enough inliers, objects not in scene");
-	// 	  }
+
+
+	 	  int count = 0;
+	 	  for( int i = 0 ; i < obj.size() ; i++ ){
+	 		  if( !inliers[i] ){
+	 			  obj.erase( obj.begin() + i );
+	 			  scene.erase( scene.begin() + i );
+	 		  }else{
+	 			  count++;
+	 		  }
+	 	  }
+	 	  if( count > 10 ){
+//	 		  perspectiveTransform( prev_scene_points, scene_points, H );
+	 		  warpPerspective(img_overlay, cur_overlay, rem_H, img_scene.size());
+	 		  cur_overlay.copyTo(img_overlay);
+			char temp[100];
+ 			sprintf(temp, "size: %d %d", cur_overlay.rows, cur_overlay.cols);
+ 			LOGI(temp);
+
+	 		  LOGI("img_overlay alpha channels %d", img_overlay.channels());
+	 		  flag = 1;
+	 		  LOGI("Perspective Transformation done");
+
+	 	  }else {
+	 		  flag = 0;
+	 		  LOGI("Not enough inliers, objects not in scene");
+	 	  }
 }
 
 vector< Point2f > getKeys( Mat& img_scene ){
@@ -212,7 +214,7 @@ void Detect( Mat& img_scene ){
 
 
 extern "C" {
-JNIEXPORT jint JNICALL Java_com_example_enginear_Sample3View_LoadSource(JNIEnv* env, jobject thiz, jint flagS )
+JNIEXPORT jint JNICALL Java_com_example_charminarrestore_Sample3View_LoadSource(JNIEnv* env, jobject thiz, jint flagS )
 {
 	root = string(SDCARD_PATH);
 	FileStorage fs(root + "charminarAR/obj-kpts-desc.yml", FileStorage::READ);
@@ -232,7 +234,7 @@ JNIEXPORT jint JNICALL Java_com_example_enginear_Sample3View_LoadSource(JNIEnv* 
 }
 
 extern "C" {
-JNIEXPORT jint JNICALL Java_com_example_enginear_Sample3View_FindFeatures(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jintArray bgra_overlay, jboolean addRemovePt, jfloat touchX, jfloat touchY, jint cStep )
+JNIEXPORT jint JNICALL Java_com_example_charminarrestore_Sample3View_FindFeatures(JNIEnv* env, jobject thiz, jint width, jint height, jbyteArray yuv, jintArray bgra, jintArray bgra_overlay, jboolean addRemovePt, jfloat touchX, jfloat touchY, jint cStep )
 {
 	jbyte* _yuv  = env->GetByteArrayElements(yuv, 0);
 	jint*  _bgra = env->GetIntArrayElements(bgra, 0);
@@ -287,7 +289,7 @@ JNIEXPORT jint JNICALL Java_com_example_enginear_Sample3View_FindFeatures(JNIEnv
 		LOGI(temp);
 
 		cvtColor(cur_overlay,mbgra_overlay,CV_BGR2BGRA);
-		imwrite("/sdcard/charminarAR/mbgra.jpg", mbgra);
+//		imwrite("/sdcard/charminarAR/mbgra.jpg", mbgra);
 //		Mat temp_mbgra = mbgra.clone();
 //		mergeImgs(mbgra, cur_overlay);
 
@@ -340,7 +342,7 @@ JNIEXPORT jint JNICALL Java_com_example_enginear_Sample3View_FindFeatures(JNIEnv
 	   vector<int> compression_params;
 	    compression_params.push_back(CV_IMWRITE_PNG_COMPRESSION);
 	    compression_params.push_back(9);
-		imwrite("/sdcard/charminarAR/overlay3_1.png", mbgra_overlay, compression_params);
+//		imwrite("/sdcard/charminarAR/overlay3_1.png", mbgra_overlay, compression_params);
 	}
 	std::swap(points[1], points[0]);
 	swap(img_prevscene, img_scene);
