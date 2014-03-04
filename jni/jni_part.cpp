@@ -90,16 +90,11 @@ void mergeImgs(Mat& orig, Mat snap) {
 
 void  HomographicTransformation( vector<Point2f>& obj, vector<Point2f>& scene ){
 	vector<uchar> inliers;
-		rem_H = findHomography( obj, scene, CV_RANSAC, 5, inliers );
+		Mat H = findHomography( obj, scene, CV_RANSAC, 5, inliers );
 
 
 //		imwrite("/sdcard/charminarAR/curOverlay.jpg", cur_overlay);
 
-//	H = Mat::eye(3, 3, 	CV_64F);
-	LOGI("Computed Homography");
-
-
-	LOGI("tx the overlay");
 
 
 	 	  int count = 0;
@@ -113,8 +108,9 @@ void  HomographicTransformation( vector<Point2f>& obj, vector<Point2f>& scene ){
 	 	  }
 	 	  if( count > 10 ){
 //	 		  perspectiveTransform( prev_scene_points, scene_points, H );
+	 		  rem_H = rem_H * H;
 	 		  warpPerspective(img_overlay, cur_overlay, rem_H, img_scene.size());
-	 		  cur_overlay.copyTo(img_overlay);
+//	 		  cur_overlay.copyTo(img_overlay);
 			char temp[100];
  			sprintf(temp, "size: %d %d", cur_overlay.rows, cur_overlay.cols);
  			LOGI(temp);
@@ -229,6 +225,7 @@ JNIEXPORT jint JNICALL Java_com_example_charminarrestore_Sample3View_LoadSource(
 	fs.release();
 
 	img_overlay = imread(root + "charminarAR/overlay.png", -1);
+	rem_H = Mat::eye(3,3, CV_64F);
 
 }
 }
@@ -288,7 +285,8 @@ JNIEXPORT jint JNICALL Java_com_example_charminarrestore_Sample3View_FindFeature
 		sprintf(temp, "size: %d %d", cur_overlay.rows, cur_overlay.cols);
 		LOGI(temp);
 
-		cvtColor(cur_overlay,mbgra_overlay,CV_BGR2BGRA);
+		//cvtColor(cur_overlay,mbgra_overlay,CV_RGB2BGRA);
+		cur_overlay.copyTo(mbgra_overlay);
 //		imwrite("/sdcard/charminarAR/mbgra.jpg", mbgra);
 //		Mat temp_mbgra = mbgra.clone();
 //		mergeImgs(mbgra, cur_overlay);
@@ -321,7 +319,10 @@ JNIEXPORT jint JNICALL Java_com_example_charminarrestore_Sample3View_FindFeature
 		if( points[1].size() > 15 ){
 			HomographicTransformation( points[0], points[1] );
 
-			cvtColor(cur_overlay,mbgra_overlay,CV_BGR2BGRA);
+			//cvtColor(cur_overlay,mbgra_overlay,CV_BGR2BGRA);
+			cur_overlay.copyTo(mbgra_overlay);
+			LOGI("cur size %d %d %d", cur_overlay.rows, cur_overlay.cols, cur_overlay.type());
+			LOGI("mbgra size %d %d %d", mbgra_overlay.rows, mbgra_overlay.cols, mbgra_overlay.type());
 //			mergeImgs(mbgra, cur_overlay);
 		}else{
 			Detect( img_scene );
